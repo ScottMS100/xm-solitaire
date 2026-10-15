@@ -122,3 +122,5 @@ table.stat th { color: var(--ink-dim); font-weight: 600; }
 .imported { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 14px; }
 .imported button { appearance: none; border: 0; border-radius: 8px; background: #5b2a2a; color: #fff; padding: 6px 10px; font: inherit; cursor: pointer; }
 dialog.win .sheet-head h2 { font-size: 26px; }
+
+[hidden] { display: none !important; }

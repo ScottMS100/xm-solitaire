@@ -258,6 +258,18 @@ $('optNumber').addEventListener('click', () => {
 });
 
 $('btnMenu').addEventListener('click', () => openDlg('menuDlg'));
+// full screen (hides the browser's address bar); not available on iPhone, where installing to the home screen does it
+const fsEl = document.documentElement;
+const canFull = !!(fsEl.requestFullscreen || fsEl.webkitRequestFullscreen);
+const inStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+if (canFull && !inStandalone) $('mFull').hidden = false;
+$('mFull').addEventListener('click', async () => {
+  closeAll();
+  try {
+    if (document.fullscreenElement || document.webkitFullscreenElement) await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else await (fsEl.requestFullscreen || fsEl.webkitRequestFullscreen).call(fsEl);
+  } catch (e) { console.warn('Full screen failed', e); }
+});
 $('mSettings').addEventListener('click', () => { closeAll(); openSettings(); });
 $('mStats').addEventListener('click', () => { closeAll(); openStats(); });
 $('mAdd').addEventListener('click', () => { closeAll(); openAdd(); });
