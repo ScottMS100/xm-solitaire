@@ -1,7 +1,7 @@
 // Service worker: makes the game work offline.
-// Strategy: serve from the cache immediately, refresh the cache from the network in the background,
-// so a new version is picked up the next time the app is opened. Bump CACHE to force a clean refresh.
-const CACHE = 'xmsol-v4';
+// Strategy: network first (so updates show up immediately when online), falling back to the cache when
+// offline or slow. Bump CACHE when the list of files changes.
+const CACHE = 'xmsol-v5';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'LICENSE',
   'css/app.css',
@@ -28,13 +28,17 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
   e.respondWith(
     caches.open(CACHE).then(async (cache) => {
-      const cached = await cache.match(req, { ignoreSearch: true });
-      const network = fetch(req).then((res) => {
+      const fromCache = () => cache.match(req, { ignoreSearch: true });
+      try {
+        const res = await Promise.race([
+          fetch(req, { cache: 'no-cache' }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('slow')), 4000)),
+        ]);
         if (res && res.ok) cache.put(req, res.clone());
         return res;
-      }).catch(() => null);
-      if (cached) { e.waitUntil(network); return cached; }
-      return (await network) || (req.mode === 'navigate' ? cache.match('index.html') : Response.error());
+      } catch {
+        return (await fromCache()) || (req.mode === 'navigate' ? cache.match('index.html') : Response.error());
+      }
     }),
   );
 });

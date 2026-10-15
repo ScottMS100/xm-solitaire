@@ -12,6 +12,21 @@ document.querySelectorAll('dialog').forEach((d) => {
   }
 });
 const LS = 'xmsol.v1.';
+const VERSION = '1.5';
+
+// Landscape and short (a phone held sideways): put the toolbar in a vertical strip on the left
+function updateBarMode() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const side = w > h && h <= 620;
+  document.documentElement.classList.toggle('side-bar', side);
+  const info = document.getElementById('aboutInfo');
+  if (info) info.textContent = `Version ${VERSION} · screen ${w}×${h} px · ${side ? 'side toolbar' : 'top toolbar'}`;
+}
+window.addEventListener('resize', updateBarMode);
+window.addEventListener('orientationchange', () => setTimeout(updateBarMode, 150));
+updateBarMode();
+new ResizeObserver(updateBarMode).observe(document.documentElement);
 
 // ---- storage helpers (every access is guarded: private mode / blocked storage must not break the game)
 const store = {
@@ -277,6 +292,7 @@ $('mHow').addEventListener('click', () => { closeAll(); openDlg('howDlg'); });
 $('mAbout').addEventListener('click', () => {
   closeAll();
   $('aboutCount').textContent = `${games.length} games installed.`;
+  updateBarMode();
   openDlg('aboutDlg');
 });
 
