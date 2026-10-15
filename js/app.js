@@ -12,7 +12,7 @@ document.querySelectorAll('dialog').forEach((d) => {
   }
 });
 const LS = 'xmsol.v1.';
-const VERSION = '1.5';
+const VERSION = '1.6';
 
 // Landscape and short (a phone held sideways): put the toolbar in a vertical strip on the left
 function updateBarMode() {
@@ -49,6 +49,7 @@ let featured = [];
 let manifest = { files: ['standard.xml', 'popular.xml'], featured: [] };
 let stats = store.get('stats', {});
 let counted = false; // has the current game been counted as "played"?
+let winCounted = false; // has a win of the current deal been counted already?
 let tickTimer = null;
 
 const view = new BoardView($('board'), board, settings, { onAction: onAction, onWin: onWin });
@@ -94,6 +95,7 @@ async function loadRules() {
 function startGame(game, seed) {
   board.newGame(game, seed ?? randomSeed());
   counted = false;
+  winCounted = false;
   view.reset();
   afterLoad();
 }
@@ -126,6 +128,7 @@ function restoreGame() {
   try {
     board.restore(g, s);
     counted = !!s.counted;
+    winCounted = board.finished;
     return true;
   } catch (e) {
     console.warn('Could not restore saved game', e);
@@ -149,7 +152,8 @@ function onAction() {
 
 function onWin() {
   const st = statFor(board.game.name);
-  st.won++;
+  if (!winCounted) st.won++;
+  winCounted = true;
   if (!st.bestTime || board.playtime < st.bestTime) st.bestTime = board.playtime;
   if (!st.bestMoves || board.moves < st.bestMoves) st.bestMoves = board.moves;
   store.set('stats', stats);
@@ -296,8 +300,8 @@ $('mAbout').addEventListener('click', () => {
   openDlg('aboutDlg');
 });
 
-$('btnUndo').addEventListener('click', () => { view.perform(() => board.undo()); });
-$('btnRedo').addEventListener('click', () => { view.perform(() => board.redo()); });
+$('btnUndo').addEventListener('click', () => { view.perform(() => board.undo(), false); });
+$('btnRedo').addEventListener('click', () => { view.perform(() => board.redo(), false); });
 
 $('winNew').addEventListener('click', () => { closeAll(); startGame(board.game); });
 $('winPick').addEventListener('click', () => { closeAll(); openGames(); });
@@ -413,15 +417,15 @@ $('addFile').addEventListener('change', async (e) => {
 
 // keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-  if (document.querySelector('dialog[open]') || e.target.matches('input, select, textarea')) return;
+  if (document.querySelector('dialog[open]') || e.target.matches?.('input, select, textarea')) return;
   const k = e.key.toLowerCase();
   // XM Solitaire's keys: Delete = undo, Insert = redo, Home = undo all, End = redo all
-  if (k === 'delete') { e.preventDefault(); if (board.canUndo) view.perform(() => board.undo()); return; }
-  if (k === 'insert') { e.preventDefault(); if (board.canRedo) view.perform(() => board.redo()); return; }
-  if (k === 'home') { e.preventDefault(); if (board.canUndo) view.perform(() => { while (board.undo1()); board.calcDone(); }); return; }
-  if (k === 'end') { e.preventDefault(); if (board.canRedo) view.perform(() => { while (board.redo1()); board.calcDone(); }); return; }
-  if ((k === 'z' && !e.shiftKey) || (k === 'z' && e.ctrlKey && !e.shiftKey)) { e.preventDefault(); if (board.canUndo) view.perform(() => board.undo()); }
-  else if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); if (board.canRedo) view.perform(() => board.redo()); }
+  if (k === 'delete') { e.preventDefault(); if (board.canUndo) view.perform(() => board.undo(), false); return; }
+  if (k === 'insert') { e.preventDefault(); if (board.canRedo) view.perform(() => board.redo(), false); return; }
+  if (k === 'home') { e.preventDefault(); if (board.canUndo) view.perform(() => { while (board.undo1()); board.calcDone(); }, false); return; }
+  if (k === 'end') { e.preventDefault(); if (board.canRedo) view.perform(() => { while (board.redo1()); board.calcDone(); }, false); return; }
+  if ((k === 'z' && !e.shiftKey) || (k === 'z' && e.ctrlKey && !e.shiftKey)) { e.preventDefault(); if (board.canUndo) view.perform(() => board.undo(), false); }
+  else if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); if (board.canRedo) view.perform(() => board.redo(), false); }
   else if (k === 'n') { e.preventDefault(); newDeal(); }
   else if (k === 'g') { e.preventDefault(); openGames(); }
 });

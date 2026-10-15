@@ -170,14 +170,14 @@ export class BoardView {
     this.requestDraw();
   }
 
-  /** Run a board operation, animate whatever it moved, then autoplay and report. */
-  perform(fn) {
+  /** Run a board operation, animate whatever it moved, then autoplay (unless auto is false) and report. */
+  perform(fn, auto = true) {
     const wasFinished = this.board.finished;
     this.recording = [];
     let result;
     try {
       result = fn();
-      this.board.autoPlay();
+      if (auto) this.board.autoPlay();
     } finally {
       const list = this.recording;
       this.recording = null;
@@ -186,7 +186,7 @@ export class BoardView {
       this.startFlights(list);
     }
     this.hooks.onAction();
-    if (!wasFinished && this.board.finished) this.hooks.onWin();
+    if (auto && !wasFinished && this.board.finished) this.hooks.onWin();
     return result;
   }
 

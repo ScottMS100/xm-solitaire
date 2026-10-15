@@ -938,6 +938,7 @@ export class Board {
 
   calcDone() {
     if (!this.game) return;
+    if (this.checkFinish) this.finished = !!this.checkFinish.call(this); // also after undo/redo
     let t = 0; let f = 0; let n = 0;
     for (const c of this.cells) {
       if (c.type === CELL_FOUNDATION && (c.inRule & SEQ_MASK) !== (SEQ_RANK << SEQ_ROT)) { f += c.Ncards; n++; }
@@ -1001,6 +1002,12 @@ export class Board {
     if (this.undoPos > 0) {
       const u = this.undoRec[this.undoPos - 1];
       if (cells[u.src].type === CELL_FOUNDATION && cells[u.dest].type !== CELL_FOUNDATION) disabled = true;
+    }
+    // ... and also when the move that was just undone had put cards on a foundation (a completed Spider
+    // sequence, for example): otherwise autoplay would immediately send them back
+    if (this.redoPos && this.undoPos < this.redoPos) {
+      const u = this.undoRec[this.undoPos];
+      if (u && cells[u.dest].type === CELL_FOUNDATION && cells[u.src].type !== CELL_FOUNDATION) disabled = true;
     }
     const enabled = once || this.autoplayEnabled;
     let moved;
