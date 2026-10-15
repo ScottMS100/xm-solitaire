@@ -1,0 +1,9 @@
+{
+  "files": ["standard.xml", "popular.xml"],
+  "featured": [
+    "Klondike", "Klondike 3", "Freecell", "Spider", "Spider Two Suits", "Spider One Suit", "Spiderette",
+    "Eight Off", "Spidercells", "Pyramid", "TriPeaks", "Golf", "Yukon", "Canfield", "Forty Thieves 1",
+    "Scorpion II", "Baker's Game", "Penguin", "Easthaven", "Baker's Dozen", "Simple Simon",
+    "La Belle Lucie", "Fan", "Flower Garden", "Streets and Alleys", "Beleaguered Castle"
+  ]
+}

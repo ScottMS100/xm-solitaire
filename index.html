@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>XM Solitaire</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d4d24">
+<meta name="description" content="Solitaire card games: Klondike, FreeCell, Spider, Eight Off, Spidercells, Pyramid, TriPeaks and many more.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="XM Solitaire">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <header id="bar">
+    <button id="btnGames" class="game-btn" aria-label="Choose a game">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+      <span class="gtxt"><span id="gameName">XM Solitaire</span><span id="stats" aria-live="off"><span id="moves">0</span> moves &middot; <span id="time">0:00</span></span></span>
+    </button>
+    <div class="spacer"></div>
+    <button id="btnUndo" class="icon-btn" aria-label="Undo" title="Undo (Delete or Z)" disabled>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>
+    </button>
+    <button id="btnRedo" class="icon-btn" aria-label="Redo" title="Redo (Insert or Y)" disabled>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg>
+    </button>
+    <button id="btnNew" class="text-btn">New</button>
+    <button id="btnMenu" class="icon-btn" aria-label="Menu">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+    </button>
+  </header>
+  <main id="boardWrap"><canvas id="board" aria-label="Card table"></canvas></main>
+  <div id="loading">Loading&hellip;</div>
+</div>
+
+<!-- Game picker -->
+<dialog id="gamesDlg" class="sheet">
+  <form method="dialog" class="sheet-head">
+    <h2>Choose a game</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <input id="gameSearch" type="search" placeholder="Search all games&hellip;" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <div class="sheet-body">
+    <div id="gameLists"></div>
+  </div>
+</dialog>
+
+<!-- New deal -->
+<dialog id="newDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2 id="newTitle">New game</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body">
+    <button id="optNew" class="big">New random deal</button>
+    <button id="optRestart" class="big">Restart this deal</button>
+    <button id="optPick" class="big">Choose another game&hellip;</button>
+    <div class="row">
+      <label for="dealNumber">Deal number</label>
+      <input id="dealNumber" type="number" inputmode="numeric" min="0" max="4294967295">
+      <button id="optNumber">Play</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Menu -->
+<dialog id="menuDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2>Menu</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body">
+    <button id="mSettings" class="big">Settings</button>
+    <button id="mStats" class="big">Statistics</button>
+    <button id="mAdd" class="big">Add games&hellip;</button>
+    <button id="mHow" class="big">How to play</button>
+    <button id="mAbout" class="big">About &amp; license</button>
+  </div>
+</dialog>
+
+<!-- Settings -->
+<dialog id="settingsDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2>Settings</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body">
+    <label class="toggle"><input type="checkbox" id="setTap"><span>Tap a card to move it<small>Moves to the best pile. Turn off to use only dragging.</small></span></label>
+    <label class="toggle"><input type="checkbox" id="setAuto"><span>Autoplay<small>Automatically move cards to the foundations.</small></span></label>
+    <div class="row"><label for="setAnim">Animation</label>
+      <select id="setAnim"><option value="1">Normal</option><option value="2">Fast</option><option value="0">Off</option></select></div>
+    <div class="row"><label for="setDeck">Card deck</label>
+      <select id="setDeck"><option value="classic">Classic (XM Solitaire)</option><option value="modern">Modern</option></select></div>
+    <div class="row"><label for="setSpread">Card overlap</label>
+      <select id="setSpread"><option value="0.95">Tight</option><option value="1.2">Normal</option><option value="1.55">Wide</option></select></div>
+  </div>
+</dialog>
+
+<!-- Add games -->
+<dialog id="addDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2>Add games</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body">
+    <p>Add more games by choosing a rules file in the XM Solitaire XML format (like the files in the <code>rules</code> folder). Added games stay on this device.</p>
+    <input id="addFile" type="file" accept=".xml,text/xml,application/xml">
+    <div id="addResult" class="note"></div>
+    <div id="addList"></div>
+  </div>
+</dialog>
+
+<!-- Statistics -->
+<dialog id="statsDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2>Statistics</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body">
+    <div id="statsBody"></div>
+    <button id="statsClear" class="big danger">Clear statistics</button>
+  </div>
+</dialog>
+
+<!-- Win -->
+<dialog id="winDlg" class="sheet small win">
+  <div class="sheet-head"><h2>You won!</h2></div>
+  <div class="sheet-body">
+    <p id="winText"></p>
+    <button id="winNew" class="big primary">Play again</button>
+    <button id="winPick" class="big">Choose another game</button>
+    <button id="winClose" class="big">Look at the table</button>
+  </div>
+</dialog>
+
+<!-- How to play -->
+<dialog id="howDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2>How to play</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body text">
+    <ul>
+      <li><b>Tap</b> a card to move it to the best pile (or turn the stock). A tapped card in the middle of a pile moves the cards on top of it too.</li>
+      <li><b>Drag</b> cards to move them yourself. Piles you can drop on light up.</li>
+      <li><b>Press and hold</b> a card to peek at it when cards overlap.</li>
+      <li><b>Undo</b> and <b>Redo</b> are unlimited. A game is saved automatically.</li>
+      <li>Every game follows its own rules; if a move is not allowed, the cards just slide back.</li>
+      <li>Install it: in Safari tap Share &rarr; <i>Add to Home Screen</i>. In Chrome use the menu &rarr; <i>Install app</i>. It then works offline.</li>
+    </ul>
+  </div>
+</dialog>
+
+<!-- About -->
+<dialog id="aboutDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2>About</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body text">
+    <p><b>XM Solitaire (web/mobile)</b> is a port of <b>XM Solitaire</b> by Petr Lastovicka: the rules engine and the XML game definitions are taken from that program.</p>
+    <p>This program is free software, released under the <b>GNU General Public License</b> (version 3 or, at your option, any later version). It comes with no warranty. The source code is in the app files and at
+      <a href="https://github.com/plastovicka/xmsol" target="_blank" rel="noopener">github.com/plastovicka/xmsol</a>
+      (original) &mdash; see the <a href="LICENSE" target="_blank">LICENSE</a> file for the full text.</p>
+    <p>Card images: the classic deck, back and markers are the standard ones from XM Solitaire; the &ldquo;modern&rdquo; deck is from <a href="https://pixabay.com/vectors/card-deck-deck-cards-playing-cards-161536/" target="_blank" rel="noopener">Pixabay</a>.</p>
+    <p id="aboutCount"></p>
+  </div>
+</dialog>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

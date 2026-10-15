@@ -1,0 +1,75 @@
+<!-- Extra games for the XM Solitaire PWA, written in the XM Solitaire rules format
+     (see Mods_Rules.html in the XM Solitaire help). A game here with the same name as one
+     in standard.xml replaces it. -->
+<xmsol>
+
+<game name="Spider" decks="2">
+<foundation x="240" repeat="8">k all down</foundation>
+<tableau repeat="10" count="54" hide="-1">group<out>suit</out></tableau>
+<stock deal="10"/>
+</game>
+
+<game name="Spider One Suit" decks="8" suit="s">
+<foundation x="240" repeat="8">k all down</foundation>
+<tableau repeat="10" count="54" hide="-1">group<out>suit</out></tableau>
+<stock deal="10"/>
+</game>
+
+<game name="Spiderette">
+<foundation x="250" repeat="4">k all down</foundation>
+<tableau repeat="7" shape="incr" count="28" hide="-1">group<out>suit</out></tableau>
+<stock deal="7"/>
+</game>
+
+<!-- Same as XM's Golf, but the waste pile starts with a random card instead of an ace. -->
+<game name="Golf" autoplay="0">
+<tableau repeat="7" count="35">no noseq</tableau>
+<foundation x="167" y="850" count="1" dir="right" spacing="60">anyrank updown anysuit</foundation>
+<stock y="850"><out>foundation</out></stock>
+</game>
+
+<game name="Beleaguered Castle">
+<foundation repeat="4" x="590" count="4">a</foundation>
+<tableau repeat="8" count="48">down</tableau>
+</game>
+
+<game name="Streets and Alleys">
+<foundation repeat="4" x="590"/>
+<tableau repeat="8" count="52">down</tableau>
+</game>
+
+<!-- 28 cards in three overlapping peaks. A card can be played when nothing overlaps it. -->
+<game name="TriPeaks" autoplay="0">
+<reserve x="167" y="0" under2="3" under="4" count="1"/>
+<reserve x="500" y="0" under2="4" under="5" count="1"/>
+<reserve x="833" y="0" under2="5" under="6" count="1"/>
+<reserve x="111" y="110" under2="6" under="7" count="1"/>
+<reserve x="222" y="110" under2="6" under="7" count="1"/>
+<reserve x="444" y="110" under2="7" under="8" count="1"/>
+<reserve x="556" y="110" under2="7" under="8" count="1"/>
+<reserve x="778" y="110" under2="8" under="9" count="1"/>
+<reserve x="889" y="110" under2="8" under="9" count="1"/>
+<reserve x="56" y="220" under2="9" under="10" count="1"/>
+<reserve x="167" y="220" under2="9" under="10" count="1"/>
+<reserve x="278" y="220" under2="9" under="10" count="1"/>
+<reserve x="389" y="220" under2="9" under="10" count="1"/>
+<reserve x="500" y="220" under2="9" under="10" count="1"/>
+<reserve x="611" y="220" under2="9" under="10" count="1"/>
+<reserve x="722" y="220" under2="9" under="10" count="1"/>
+<reserve x="833" y="220" under2="9" under="10" count="1"/>
+<reserve x="944" y="220" under2="9" under="10" count="1"/>
+<reserve x="0" y="330" count="1"/>
+<reserve x="111" y="330" count="1"/>
+<reserve x="222" y="330" count="1"/>
+<reserve x="333" y="330" count="1"/>
+<reserve x="444" y="330" count="1"/>
+<reserve x="556" y="330" count="1"/>
+<reserve x="667" y="330" count="1"/>
+<reserve x="778" y="330" count="1"/>
+<reserve x="889" y="330" count="1"/>
+<reserve x="1000" y="330" count="1"/>
+<foundation x="520" y="1000" count="1">anyrank updown cont anysuit</foundation>
+<stock x="400" y="1000"><out>foundation</out></stock>
+</game>
+
+</xmsol>

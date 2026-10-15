@@ -1,0 +1,16 @@
+{
+  "name": "XM Solitaire",
+  "short_name": "XM Solitaire",
+  "description": "Solitaire card games: Klondike, FreeCell, Spider, Eight Off, Spidercells, Pyramid, TriPeaks and many more.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d4d24",
+  "theme_color": "#0d4d24",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
