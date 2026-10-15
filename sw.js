@@ -1,7 +1,7 @@
 // Service worker: makes the game work offline.
 // Strategy: serve from the cache immediately, refresh the cache from the network in the background,
 // so a new version is picked up the next time the app is opened. Bump CACHE to force a clean refresh.
-const CACHE = 'xmsol-v3';
+const CACHE = 'xmsol-v4';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'LICENSE',
   'css/app.css',
