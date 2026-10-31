@@ -312,7 +312,7 @@ $('logCopy').addEventListener('click', async () => {
   t.focus(); t.select(); t.setSelectionRange(0, t.value.length);
   let ok = false;
   try { await navigator.clipboard.writeText(t.value); ok = true; } catch { try { ok = document.execCommand('copy'); } catch { /* ignore */ } }
-  $('logMsg').textContent = ok ? 'Copied. Paste it into your message.' : 'Could not copy automatically: the text is selected, so use your phone's Copy option.';
+  $('logMsg').textContent = ok ? 'Copied. Paste it into your message.' : 'Could not copy automatically: the text is selected, so use the Copy option of your phone.';
 });
 $('mHow').addEventListener('click', () => { closeAll(); openDlg('howDlg'); });
 $('mAbout').addEventListener('click', () => {
