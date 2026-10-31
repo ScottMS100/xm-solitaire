@@ -12,7 +12,7 @@ document.querySelectorAll('dialog').forEach((d) => {
   }
 });
 const LS = 'xmsol.v1.';
-const VERSION = '1.8';
+const VERSION = '1.9';
 
 // Landscape and short (a phone held sideways): put the toolbar in a vertical strip on the left
 function updateBarMode() {
@@ -163,6 +163,7 @@ function onWin() {
 }
 
 function updateStatus() {
+  $('deal').textContent = board.number;
   $('moves').textContent = board.moves;
   $('time').textContent = fmtTime(board.playtime);
   $('btnUndo').disabled = !board.canUndo;
