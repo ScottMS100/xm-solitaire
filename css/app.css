@@ -152,3 +152,5 @@ html.side-bar #board { left: 0; }
   html:not(.side-bar) #stats { font-size: 10px; }
   html:not(.side-bar) #stats .sep { margin: 0 -1px; }
 }
+html.side-bar #dealWrap { font-size: 9px; letter-spacing: -0.3px; }
+html.side-bar #bar .game-btn { padding-left: 0; padding-right: 0; }
