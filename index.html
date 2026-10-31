@@ -79,6 +79,7 @@
     <button id="mSettings" class="big">Settings</button>
     <button id="mStats" class="big">Statistics</button>
     <button id="mAdd" class="big">Add games&hellip;</button>
+    <button id="mLog" class="big">Copy game log (for bug reports)</button>
     <button id="mHow" class="big">How to play</button>
     <button id="mAbout" class="big">About &amp; license</button>
   </div>
@@ -136,6 +137,20 @@
     <button id="winNew" class="big primary">Play again</button>
     <button id="winPick" class="big">Choose another game</button>
     <button id="winClose" class="big">Look at the table</button>
+  </div>
+</dialog>
+
+<!-- Game log -->
+<dialog id="logDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2>Game log</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body">
+    <p>This is a record of the current game, every move included. Tap <b>Copy</b> and paste it into a message when reporting a problem.</p>
+    <textarea id="logText" readonly rows="8"></textarea>
+    <button id="logCopy" class="big primary">Copy</button>
+    <div id="logMsg" class="note"></div>
   </div>
 </dialog>
 

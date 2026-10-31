@@ -12,7 +12,7 @@ document.querySelectorAll('dialog').forEach((d) => {
   }
 });
 const LS = 'xmsol.v1.';
-const VERSION = '1.7';
+const VERSION = '1.8';
 
 // Landscape and short (a phone held sideways): put the toolbar in a vertical strip on the left
 function updateBarMode() {
@@ -292,6 +292,28 @@ $('mFull').addEventListener('click', async () => {
 $('mSettings').addEventListener('click', () => { closeAll(); openSettings(); });
 $('mStats').addEventListener('click', () => { closeAll(); openStats(); });
 $('mAdd').addEventListener('click', () => { closeAll(); openAdd(); });
+// game log for bug reports: enough to replay the whole game
+function buildLog() {
+  const s = board.serialize();
+  return JSON.stringify({
+    v: VERSION, game: s.name, deal: s.number, moves: s.moves, finished: s.finished, undoPos: s.undoPos, redoPos: s.redoPos,
+    ua: navigator.userAgent.slice(0, 80), screen: `${innerWidth}x${innerHeight}`, deck: settings.deck, autoplay: settings.autoplay,
+    log: s.undoRec, final: s.cells,
+  });
+}
+$('mLog').addEventListener('click', () => {
+  closeAll();
+  $('logText').value = buildLog();
+  $('logMsg').textContent = '';
+  openDlg('logDlg');
+});
+$('logCopy').addEventListener('click', async () => {
+  const t = $('logText');
+  t.focus(); t.select(); t.setSelectionRange(0, t.value.length);
+  let ok = false;
+  try { await navigator.clipboard.writeText(t.value); ok = true; } catch { try { ok = document.execCommand('copy'); } catch { /* ignore */ } }
+  $('logMsg').textContent = ok ? 'Copied. Paste it into your message.' : 'Could not copy automatically: the text is selected, so use your phone's Copy option.';
+});
 $('mHow').addEventListener('click', () => { closeAll(); openDlg('howDlg'); });
 $('mAbout').addEventListener('click', () => {
   closeAll();
