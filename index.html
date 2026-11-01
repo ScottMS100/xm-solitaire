@@ -78,6 +78,7 @@
     <button id="mFull" class="big" hidden>Full screen</button>
     <button id="mSettings" class="big">Settings</button>
     <button id="mStats" class="big">Statistics</button>
+    <button id="mCheck" class="big">Check if this deal can be won</button>
     <button id="mAdd" class="big">Add games&hellip;</button>
     <button id="mLog" class="big">Copy game log (for bug reports)</button>
     <button id="mHow" class="big">How to play</button>
@@ -137,6 +138,20 @@
     <button id="winNew" class="big primary">Play again</button>
     <button id="winPick" class="big">Choose another game</button>
     <button id="winClose" class="big">Look at the table</button>
+  </div>
+</dialog>
+
+<!-- Deal checker -->
+<dialog id="checkDlg" class="sheet small">
+  <form method="dialog" class="sheet-head">
+    <h2>Can this deal be won?</h2>
+    <button class="close" aria-label="Close">&times;</button>
+  </form>
+  <div class="sheet-body">
+    <p id="checkHead"></p>
+    <div id="checkMsg" class="note"></div>
+    <button id="checkMore" class="big primary" hidden>Keep searching</button>
+    <button id="checkStop" class="big" hidden>Stop</button>
   </div>
 </dialog>
 

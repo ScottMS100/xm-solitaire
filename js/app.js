@@ -12,7 +12,7 @@ document.querySelectorAll('dialog').forEach((d) => {
   }
 });
 const LS = 'xmsol.v1.';
-const VERSION = '1.9';
+const VERSION = '2.0';
 
 // Landscape and short (a phone held sideways): put the toolbar in a vertical strip on the left
 function updateBarMode() {
@@ -293,6 +293,115 @@ $('mFull').addEventListener('click', async () => {
 $('mSettings').addEventListener('click', () => { closeAll(); openSettings(); });
 $('mStats').addEventListener('click', () => { closeAll(); openStats(); });
 $('mAdd').addEventListener('click', () => { closeAll(); openAdd(); });
+// deal checker: searches from the current position for a win, in a worker (or in slices on the main thread)
+let checker = null;
+const CHECK_SECONDS = 60;
+function stopChecker() {
+  if (!checker) return;
+  if (checker.worker) checker.worker.terminate();
+  clearTimeout(checker.timer);
+  checker = null;
+}
+function showCheck(info, done) {
+  const pct = info.total ? Math.round((info.best / info.total) * 100) : 0;
+  const msg = $('checkMsg');
+  const head = $('checkHead');
+  msg.classList.remove('err');
+  $('checkMore').hidden = true;
+  $('checkStop').hidden = done;
+  if (!done) {
+    head.textContent = 'Searching…';
+    msg.textContent = `${info.states.toLocaleString()} positions tried. Best so far: ${pct}% of the cards on the foundations.`;
+    return;
+  }
+  if (info.status === 'solved') {
+    head.textContent = 'Yes, it can be won.';
+    msg.textContent = `A winning line exists from here, about ${info.moves} moves (searched ${info.states.toLocaleString()} positions).`;
+  } else if (info.status === 'unsolvable') {
+    head.textContent = 'No, it cannot be won.';
+    msg.textContent = `All ${info.states.toLocaleString()} reachable positions were checked and none wins. At best ${pct}% of the cards reach the foundations. If you have made moves, undoing some of them could change the answer.`;
+  } else {
+    head.textContent = 'Could not tell.';
+    msg.textContent = `No win found yet after ${info.states.toLocaleString()} positions (best: ${pct}% on the foundations). This does not mean it is unwinnable.`;
+    $('checkMore').hidden = info.status === 'limit';
+    if (info.status === 'limit') msg.textContent += ' The search has used all the memory it is allowed.';
+  }
+}
+function checkFail(text) {
+  stopChecker();
+  $('checkHead').textContent = 'Not available';
+  $('checkMsg').textContent = text;
+  $('checkMsg').classList.add('err');
+  $('checkMore').hidden = true;
+  $('checkStop').hidden = true;
+}
+async function startCheck() {
+  stopChecker();
+  $('checkHead').textContent = 'Searching…';
+  $('checkMsg').textContent = 'Starting…';
+  $('checkMsg').classList.remove('err');
+  $('checkMore').hidden = true;
+  $('checkStop').hidden = false;
+  openDlg('checkDlg');
+  const state = board.serialize();
+  const userRules = store.get('userRules', []).map((u) => u.xml);
+  const me = (checker = { worker: null, timer: 0 });
+  const onMsg = (m) => {
+    if (checker !== me) return;
+    if (m.type === 'progress') showCheck(m, false);
+    else if (m.type === 'done') showCheck(m, true);
+    else if (m.type === 'unsupported') checkFail(m.reason);
+    else if (m.type === 'error') checkFail('Something went wrong: ' + m.message);
+  };
+  const budget = CHECK_SECONDS * 1000;
+  let worker = null;
+  try {
+    worker = new Worker('js/solver-worker.js', { type: 'module' });
+    worker.onmessage = (e) => onMsg(e.data);
+    worker.onerror = () => { if (checker === me) { worker.terminate(); me.worker = null; startInline(); } };
+    me.worker = worker;
+    me.more = () => worker.postMessage({ cmd: 'more', budget });
+    worker.postMessage({ cmd: 'start', name: state.name, state, userRules, budget });
+  } catch { startInline(); }
+
+  // fallback for browsers without module workers: same search, in short slices on the page itself
+  async function startInline() {
+    try {
+      const { Solver, unsupportedReason } = await import('./solver.js');
+      const b = new Board();
+      b.restore(board.game, state);
+      const why = unsupportedReason(b);
+      if (why) { onMsg({ type: 'unsupported', reason: why }); return; }
+      const solver = new Solver(b, 150000);
+      let t0 = Date.now();
+      const slice = () => {
+        if (checker !== me) return;
+        const st = solver.step(80);
+        const info = solver.info();
+        if (st === 'running' && Date.now() - t0 < budget) { onMsg({ type: 'progress', ...info }); me.timer = setTimeout(slice, 0); } else onMsg({ type: 'done', ...info });
+      };
+      me.more = () => { t0 = Date.now(); slice(); };
+      slice();
+    } catch (e) { onMsg({ type: 'error', message: String(e && e.message || e) }); }
+  }
+}
+$('mCheck').addEventListener('click', () => { closeAll(); startCheck(); });
+$('checkStop').addEventListener('click', () => {
+  // keep the worker's progress so far: report what we know and stop
+  stopChecker();
+  $('checkHead').textContent = 'Stopped.';
+  $('checkMsg').textContent = 'The search was stopped before it finished.';
+  $('checkStop').hidden = true;
+});
+$('checkMore').addEventListener('click', () => {
+  if (!checker || !checker.more) { startCheck(); return; }
+  $('checkMore').hidden = true;
+  $('checkStop').hidden = false;
+  $('checkHead').textContent = 'Searching…';
+  checker.more();
+});
+$('checkDlg').addEventListener('close', stopChecker);
+
 // game log for bug reports: enough to replay the whole game
 function buildLog() {
   const s = board.serialize();

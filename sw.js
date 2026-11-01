@@ -1,11 +1,11 @@
 // Service worker: makes the game work offline.
 // Strategy: network first (so updates show up immediately when online), falling back to the cache when
 // offline or slow. Bump CACHE when the list of files changes.
-const CACHE = 'xmsol-v5';
+const CACHE = 'xmsol-v6';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'LICENSE',
   'css/app.css',
-  'js/app.js', 'js/engine.js', 'js/layout.js', 'js/ui.js', 'js/xml.js',
+  'js/app.js', 'js/engine.js', 'js/layout.js', 'js/ui.js', 'js/xml.js', 'js/solver.js', 'js/solver-worker.js',
   'rules/manifest.json', 'rules/standard.xml', 'rules/popular.xml',
   'img/classic-cards.png', 'img/classic-back.png', 'img/classic-cell.png',
   'img/modern-cards.png', 'img/modern-back.jpg', 'img/modern-cell.jpg', 'img/bkgnd.jpg',
